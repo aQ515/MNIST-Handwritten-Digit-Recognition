@@ -17,7 +17,7 @@ class MNISTClassifier(nn.Module):
         self.fc3 = nn.Linear(128, 64)
         self.fc4 = nn.Linear(64, 10)
         self.relu    = nn.ReLU()
-        self.dropout = nn.Dropout(0.3)
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, x):
         x = x.view(x.size(0), -1)
