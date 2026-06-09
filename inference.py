@@ -1,7 +1,6 @@
-"""MNIST 手写数字识别 - 推理脚本
-使用方法:
-    python inference.py <图片路径>
-    python inference.py              # 交互模式
+"""
+MNIST手写数字识别 - 推理脚本
+用法: python inference.py <图片路径>
 """
 
 import torch
@@ -17,8 +16,8 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def load_model():
     if not os.path.exists(MODEL_PATH):
-        print(f"错误: 找不到模型文件 '{MODEL_PATH}'")
-        print("请先运行 train.py 训练模型")
+        print(f"找不到模型文件 {MODEL_PATH}")
+        print("请先运行 train.py")
         sys.exit(1)
     model = MNISTClassifier()
     model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
@@ -44,9 +43,9 @@ def predict(image_tensor, model):
     with torch.no_grad():
         output = model(image_tensor)
         probs = torch.softmax(output, dim=1)
-        pred_class = output.argmax(dim=1).item()
-        confidence = probs[0][pred_class].item() * 100
-    return pred_class, confidence
+        digit = output.argmax(dim=1).item()
+        confidence = probs[0][digit].item() * 100
+    return digit, confidence
 
 
 def main():
@@ -56,25 +55,20 @@ def main():
     if len(sys.argv) > 1:
         image_path = sys.argv[1]
     else:
-        image_path = input("请输入图片路径: ").strip().strip('"').strip("'")
+        image_path = input("请输入图片路径: ").strip().strip('"')
 
     if not image_path:
-        print("未输入图片路径，退出。")
         return
 
     try:
         image_tensor = preprocess_image(image_path)
-        print(f"图片已加载: {image_path}")
     except FileNotFoundError as e:
         print(f"错误: {e}")
         return
 
     digit, confidence = predict(image_tensor, model)
-
-    print(f"\n{'='*30}")
-    print(f"  预测结果: {digit}")
-    print(f"  置信度:   {confidence:.2f}%")
-    print(f"{'='*30}")
+    print(f"\n预测数字: {digit}")
+    print(f"置信度: {confidence:.2f}%")
 
 
 if __name__ == "__main__":
